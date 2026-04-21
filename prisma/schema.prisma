@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  password String
+  accounts Account[]
+  categories Category[]
+  budgets Budget[]
+  goals Goal[]
+  notifications Notification[]  
+  locale LOCALE @default(EN)
+}
+
+enum LOCALE {
+  EN
+  RU
+  UK
+  DE
+}
+
+model Account {
+  id Int @id @default(autoincrement())
+  type AccountType @default(SAVINGS)
+  balance Decimal
+  currency Currency @default(UAH)
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  transaction Transaction[]
+}
+
+enum Currency {
+  UAH
+  EUR
+  USD
+}
+
+enum AccountType {
+  CASH
+  CHECKING
+  SAVINGS
+  CREDIT
+  INVESTMENT
+}
+
+model Transaction {
+  id Int @id @default(autoincrement())
+  type_storage TYPE_STORAGE_MONEY @default(CARD)
+  type_direction TYPE_DIRECTION_MONEY
+  number String
+  amount Decimal
+  time DateTime
+  comment String
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+  category  Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+}
+
+enum TYPE_STORAGE_MONEY {
+  CARD
+  CRYPTO
+  CASH
+}
+
+enum TYPE_DIRECTION_MONEY {
+  INCOME
+  EXPENSES
+  TRANSFER
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String
+
+  parent Category? @relation("SubCategory",  fields: [parentId], references: [id])
+  parentId Int?
+  children Category[] @relation("SubCategory") 
+
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  
+  transaction Transaction[]
+  budget Budget[]
+}
+
+model Budget {
+  id Int @id @default(autoincrement())
+  amount Decimal
+  limit Decimal
+  date DateTime
+  
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model Goal {
+  id Int @id @default(autoincrement())
+  name String
+  finalAmount Decimal
+  currentAmount Decimal
+  goalDeposits GoalDeposit[]
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+}
+
+model GoalDeposit {
+  id Int @id @default(autoincrement())
+  amount Decimal
+  date DateTime
+  
+  goalId Int
+  goal Goal @relation(fields: [goalId], references: [id])
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  name String
+  date DateTime
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+}
+
+model RecurringTransaction {
+  id           String   @id @default(cuid())
+  amount       Float
+  frequency    Frequency   @default(WEEKLY)
+  nextDate     DateTime
+  userId       Int
+  categoryId   Int
+  accountId    Int
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
