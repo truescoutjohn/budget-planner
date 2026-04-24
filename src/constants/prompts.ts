@@ -1,5 +1,5 @@
-import { userSchema } from "@/src/schema/zod";
-import { transactionSchema } from "@/src/schema/zod";
+import { userSchema } from "@/schema/zod";
+import { transactionSchema } from "@/schema/zod";
 
 export const usersPrompt = (count: number) => {
     return `Generate ${count} users with the following schema: ${userSchema.toString()}`;

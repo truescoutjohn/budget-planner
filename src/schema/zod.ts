@@ -1,10 +1,17 @@
+import { Decimal } from "@prisma/client/runtime/index-browser";
 import { z } from "zod";
 
 
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+//TODO: Refactor it
 export const accountSchema = z.object({
     type: z.enum(["CASH", "CHECKING", "SAVINGS", "CREDIT", "INVESTMENT"]),
     balance: z.number(),
     currency: z.enum(["UAH", "EUR", "USD"]),
+    userId: z.number()
 });
 
 export type Category = {
@@ -59,4 +66,16 @@ export const userSchema = z.object({
     goals: z.array(goalSchema),
     notifications: z.array(notificationSchema),
     locale: z.enum(["EN", "RU", "UK", "DE"]).default("EN")
+});
+
+export const signInSchema = z.object({
+    email: z.email('Incorrect email'),
+    password: z.string().min(8, 'Incorrect password'),
+});
+
+export const signUpSchema = z.object({
+    email: z.email('Incorrect email'),
+    password: z.string().min(8, 'Incorrect password'),
+    confirmPassword: z.string().min(8, 'Incorrect confirm password'),
+    name: z.string().min(1, 'Incorrect name'),
 });
