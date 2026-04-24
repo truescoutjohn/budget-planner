@@ -42,4 +42,5 @@ next-env.d.ts
 
 src/lib/generated/prisma/**
 prisma/migrations/**
-prisma/migrations/migration_lock.toml
+prisma/migrations/migration_lock.
+package-lock.json
