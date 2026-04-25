@@ -68,14 +68,16 @@ export const userSchema = z.object({
     locale: z.enum(["EN", "RU", "UK", "DE"]).default("EN")
 });
 
-export const signInSchema = z.object({
+export const loginSchema = z.object({
     email: z.email('Incorrect email'),
     password: z.string().min(8, 'Incorrect password'),
 });
 
-export const signUpSchema = z.object({
+export const registrationSchema = z.object({
     email: z.email('Incorrect email'),
     password: z.string().min(8, 'Incorrect password'),
     confirmPassword: z.string().min(8, 'Incorrect confirm password'),
-    name: z.string().min(1, 'Incorrect name'),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });

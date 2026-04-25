@@ -6,7 +6,11 @@ import { AuthForm } from "../../../components/forms/authentication";
 
 const Home = () => {
     const { data: session } = useSession();
-    console.warn(session);
+    
+    if(session) {
+        return <div>Logged in</div> 
+    }
+
     return (
         <>
             <Header />

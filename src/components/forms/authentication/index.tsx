@@ -16,34 +16,61 @@ import {
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { loginSchema, registrationSchema } from "@/schema/zod";
+import registration from "@/actions/registration";
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
-// --- SCHEMAS ---
-const loginSchema = z.object({
-  email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password is required"),
-})
 
-const registerSchema = z.object({
-  email: z.email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Please confirm your password"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+async function onSubmitLogin(values: z.infer<typeof loginSchema>, router: ReturnType<typeof useRouter>) {
+  const result = await signIn("credentials", {
+    email: values.email,
+    password: values.password,
+    redirect: false,
+  });
 
+  if (result?.error) {
+    console.error(result.error);
+  } else {
+    router.push("/home"); 
+    router.refresh();
+  }
+}
+
+async function onSubmitRegistration(values: z.infer<typeof registrationSchema>, router: ReturnType<typeof useRouter>) {
+  const result = await registration(values.email, values.password, values.confirmPassword)
+  if (result?.error) {
+    console.error(result.error);
+  } else {
+    router.push("/home");
+    router.refresh();
+  }
+}
 export function AuthForm() {
-  // Login Form
+  const router = useRouter();
+  
   const loginForm = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   })
 
-  // Register Form
-  const registerForm = useForm<z.infer<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
+  const registerForm = useForm<z.infer<typeof registrationSchema>>({
+    resolver: zodResolver(registrationSchema),
     defaultValues: { email: "", password: "", confirmPassword: "" },
   })
+
+  async function onSubmitRegistrationForm(values: z.infer<typeof registrationSchema>) {
+    registerForm.clearErrors()
+    const result = await registration(values.email, values.password, values.confirmPassword)
+
+    if (result?.error) {
+      registerForm.setError("email", { type: "server", message: String(result.error) })
+      return
+    }
+
+    router.push("/")
+    router.refresh()
+  }
 
   return (
     <div className="flex justify-center items-center min-h-screen p-4 bg-background">
@@ -61,7 +88,7 @@ export function AuthForm() {
             </CardHeader>
             <CardContent>
               <Form {...loginForm}>
-                <form onSubmit={loginForm.handleSubmit((v) => console.log(v))} className="space-y-4">
+                <form onSubmit={loginForm.handleSubmit((values) => onSubmitLogin(values, router))} className="space-y-4">
                   <FormField
                     control={loginForm.control}
                     name="email"
@@ -99,7 +126,7 @@ export function AuthForm() {
             </CardHeader>
             <CardContent>
               <Form {...registerForm}>
-                <form onSubmit={registerForm.handleSubmit((v) => console.log(v))} className="space-y-4">
+                <form onSubmit={registerForm.handleSubmit(onSubmitRegistrationForm)} className="space-y-4">
                   <FormField
                     control={registerForm.control}
                     name="email"
