@@ -1,17 +1,26 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
-import nextVitals from 'eslint-config-next/core-web-vitals'
- 
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import prettierConfig from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier"; 
+
 const eslintConfig = defineConfig([
   ...nextVitals,
-  // Override default ignores of eslint-config-next.
+  {
+    plugins: {
+      prettier: prettierPlugin,
+    },
+    rules: {
+      "prettier/prettier": "error", 
+    },
+  },
+  prettierConfig,
   globalIgnores([
-    // Default ignores of eslint-config-next:
-    '.next/**',
-    'out/**',
-    'build/**',
-    'next-env.d.ts',
-    'src/lib/generated/prisma/**',
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "src/lib/generated/prisma/**",
   ]),
-])
- 
-export default eslintConfig
+]);
+
+export default eslintConfig;

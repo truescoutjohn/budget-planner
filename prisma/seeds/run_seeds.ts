@@ -1,8 +1,7 @@
 import mainSeeds from "./main_seeds";
 
-
 async function runSeeds() {
-    await mainSeeds();
+  await mainSeeds();
 }
 
 runSeeds();

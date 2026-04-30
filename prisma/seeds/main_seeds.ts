@@ -1,106 +1,105 @@
 import prisma from "@/lib/prisma";
 
-
 export default async function main() {
-  console.log('Starting database cleanup...')
-  await prisma.notification.deleteMany()
-  await prisma.goalDeposit.deleteMany()
-  await prisma.goal.deleteMany()
-  await prisma.budget.deleteMany()
-  await prisma.transaction.deleteMany()
-  await prisma.category.deleteMany()
-  await prisma.account.deleteMany()
-  await prisma.user.deleteMany()
-  console.log('Database cleaned.')
+  console.log("Starting database cleanup...");
+  await prisma.notification.deleteMany();
+  await prisma.goalDeposit.deleteMany();
+  await prisma.goal.deleteMany();
+  await prisma.budget.deleteMany();
+  await prisma.transaction.deleteMany();
+  await prisma.category.deleteMany();
+  await prisma.account.deleteMany();
+  await prisma.user.deleteMany();
+  console.log("Database cleaned.");
 
   const user = await prisma.user.create({
     data: {
-      email: 'dev.ivanov@gmail.com',
-      name: 'Ivan Ivanov',
-      password: 'hashed_password_123', // TODO: use bcrypt
-      locale: 'EN',
-    }
-  })
+      email: "dev.ivanov@gmail.com",
+      name: "Ivan Ivanov",
+      password: "hashed_password_123", // TODO: use bcrypt
+      locale: "EN",
+    },
+  });
 
   await prisma.account.createMany({
     data: [
       {
-        type: 'CHECKING',
+        type: "CHECKING",
         balance: 55000.5,
-        currency: 'UAH',
+        currency: "UAH",
         userId: user.id,
       },
       {
-        type: 'SAVINGS',
+        type: "SAVINGS",
         balance: 1200,
-        currency: 'USD',
+        currency: "USD",
         userId: user.id,
       },
     ],
-  })
+  });
 
   const mainAccount = await prisma.account.findFirst({
-    where: { userId: user.id, type: 'CHECKING' },
-    orderBy: { id: 'asc' },
-  })
+    where: { userId: user.id, type: "CHECKING" },
+    orderBy: { id: "asc" },
+  });
 
   const foodCategory = await prisma.category.create({
-    data: { name: 'Продукты', userId: user.id },
-  })
+    data: { name: "Продукты", userId: user.id },
+  });
 
   await prisma.category.createMany({
     data: [
-      { name: 'Овощи', userId: user.id, parentId: foodCategory.id },
-      { name: 'Мясо', userId: user.id, parentId: foodCategory.id },
+      { name: "Овощи", userId: user.id, parentId: foodCategory.id },
+      { name: "Мясо", userId: user.id, parentId: foodCategory.id },
     ],
-  })
+  });
 
   const salaryCategory = await prisma.category.create({
-    data: { name: 'Зарплата', userId: user.id },
-  })
+    data: { name: "Зарплата", userId: user.id },
+  });
 
   const goal = await prisma.goal.create({
     data: {
-      name: 'RedmiBook 16 2025',
+      name: "RedmiBook 16 2025",
       finalAmount: 45000,
       currentAmount: 5000,
       userId: user.id,
     },
-  })
+  });
 
   await prisma.goalDeposit.createMany({
     data: [
       { amount: 2000, date: new Date(), goalId: goal.id },
       { amount: 3000, date: new Date(), goalId: goal.id },
     ],
-  })
+  });
 
   if (mainAccount && salaryCategory) {
     await prisma.transaction.create({
       data: {
-        type_storage: 'CARD',
-        type_direction: 'INCOME',
-        number: 'TXN-1001',
-        amount: 45000.00,
+        type_storage: "CARD",
+        type_direction: "INCOME",
+        number: "TXN-1001",
+        amount: 45000.0,
         time: new Date(),
-        comment: 'First salary in the new company',
+        comment: "First salary in the new company",
         accountId: mainAccount.id,
-        categoryId: salaryCategory.id
-      }
-    })
+        categoryId: salaryCategory.id,
+      },
+    });
   }
 
   if (foodCategory) {
     await prisma.budget.create({
       data: {
         amount: 0,
-        limit: 8000.00,
+        limit: 8000.0,
         date: new Date(),
         userId: user.id,
-        categoryId: foodCategory.id
-      }
-    })
+        categoryId: foodCategory.id,
+      },
+    });
   }
 
-  console.log('Seeding completed successfully!')
+  console.log("Seeding completed successfully!");
 }
