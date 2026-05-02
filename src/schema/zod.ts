@@ -51,8 +51,10 @@ export const notificationSchema = z.object({
 });
 
 export const transactionSchema = z.object({
-  amount: z.number(),
-  date: z.date(),
+  number: z.number("Incorrect format for number"),
+  amount: z.number("Incorrect format for amount"),
+  time: z.date("Incorrect format for date"),
+  comment: z.string().min(120, "Too small comment"),
 });
 
 export const userSchema = z.object({
