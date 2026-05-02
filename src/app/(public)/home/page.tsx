@@ -2,7 +2,7 @@
 
 import Header from "../../../components/general/Header";
 import { useSession } from "next-auth/react";
-import { AuthForm } from "../../../components/forms/authentication";
+import AuthForm from "../../../components/forms/authentication";
 
 const Home = () => {
   const { data: session } = useSession();

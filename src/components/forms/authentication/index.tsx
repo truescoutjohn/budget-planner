@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
-import { BaseForm } from "@/components/forms/form";
+import { BaseForm } from "@/components/forms/general/form";
 import { loginSchema, registrationSchema } from "@/schema/zod";
 import registration from "@/actions/registration";
 import { signIn } from "next-auth/react";
@@ -62,7 +62,7 @@ async function onSubmitRegistrationForm(
   router.refresh();
 }
 
-export function AuthForm() {
+const AuthForm = () => {
   const router = useRouter();
 
   return (
@@ -219,4 +219,6 @@ export function AuthForm() {
       </Tabs>
     </div>
   );
-}
+};
+
+export default AuthForm;
