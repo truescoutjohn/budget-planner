@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prismaRepository from "@/utils/prismaRepository";
 import { ITransaction } from "@/types/transaction";
 import { StatusCodes } from "http-status-codes";
+import { trace } from "console";
 
 export async function POST(request: NextRequest) {
   const {
@@ -83,8 +84,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const { id } = await request.json();
   const {
+    id,
     number,
     amount,
     time,
@@ -108,11 +109,20 @@ export async function PUT(request: NextRequest) {
       accountId,
       categoryId,
     });
+    if (transaction?.id !== Number(id)) {
+      return new NextResponse("Transaction didn't update", {
+        status: StatusCodes.NOT_FOUND,
+      });
+    }
+
     if (!transaction) {
       return new NextResponse("Transaction didn't update", {
         status: StatusCodes.BAD_REQUEST,
       });
     }
+
+    const body = { ...transaction, amount: Number(transaction.amount) };
+    return NextResponse.json(body, { status: StatusCodes.OK });
   } catch (e) {
     return new NextResponse("Failed to update transaction", {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
@@ -121,12 +131,25 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const { searchParams } = await request.json();
-  const id = searchParams.get("id");
+  const { searchParams } = new URL(request.url);
+  const id = Number(searchParams.get("id"));
 
   try {
-    const isDeleted = await prismaRepository.deleteTransaction(id);
-    if (!isDeleted) {
+    if (!Number.isInteger(id) || id < 1) {
+      return new NextResponse("Invalid id", {
+        status: StatusCodes.BAD_REQUEST,
+      });
+    }
+
+    const transaction = await prismaRepository.deleteTransaction(id);
+
+    if (transaction?.id !== Number(id)) {
+      return new NextResponse("Transaction isn't deleted", {
+        status: StatusCodes.NOT_FOUND,
+      });
+    }
+
+    if (!transaction) {
       return new NextResponse("Transaction isn't deleted", {
         status: StatusCodes.INTERNAL_SERVER_ERROR,
       });

@@ -49,12 +49,16 @@ const prismaRepository = {
     }
   },
 
-  deleteTransaction: async (transactionId: number): Promise<boolean> => {
+  deleteTransaction: async (
+    transactionId: number,
+  ): Promise<ITransaction | null> => {
     try {
-      await prisma.transaction.delete({ where: { id: transactionId } });
-      return true;
+      const transaction = await prisma.transaction.delete({
+        where: { id: transactionId },
+      });
+      return transaction;
     } catch (e) {
-      return false;
+      return null;
     }
   },
 };

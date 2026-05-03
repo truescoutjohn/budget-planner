@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { POST, GET } from "@/app/api/transactions/route";
+import { POST, GET, PUT, DELETE } from "@/app/api/transactions/route";
 import { NextRequest } from "next/server";
 import { StatusCodes } from "http-status-codes";
 import prismaRepository from "@/utils/prismaRepository";
@@ -45,6 +45,98 @@ describe("Transaction CRUD", () => {
   it("should return null if transaction not found", async () => {
     const found = await prismaRepository.findTransactionById(99999);
     expect(found).toBeNull();
+  });
+
+  it("should return all transactions", async () => {
+    const transactions = await prismaRepository.findTransactionAll();
+    expect(transactions).toBeDefined();
+    expect(transactions.length).toBe(0);
+  });
+
+  it("should update a transaction", async () => {
+    const user = await prisma.user.create({
+      data: { email: "test@test.com", name: "Test User", password: "123" },
+    });
+
+    const account = await prisma.account.create({
+      data: { type: "SAVINGS", userId: user.id, balance: 123.23 },
+    });
+
+    const transaction = JSON.parse(
+      JSON.stringify(
+        await prismaRepository.createTransaction({
+          id: 123,
+          number: "GET-1",
+          amount: 10.23,
+          time: new Date("2026-05-02T17:07:58.352Z"),
+          type_direction: "EXPENSES",
+          accountId: account.id,
+          comment: "test",
+          categoryId: null,
+        }),
+      ),
+    );
+
+    const updated = JSON.parse(
+      JSON.stringify(
+        await prismaRepository.updateTransaction(transaction?.id as number, {
+          number: "GET-2",
+          amount: 10.23,
+          time: new Date("2026-05-02T17:07:58.352Z"),
+          type_direction: "EXPENSES",
+          accountId: account.id,
+          comment: "test",
+          categoryId: null,
+        }),
+      ),
+    );
+
+    expect(updated?.number).toBe("GET-2");
+    expect(updated?.amount).toBe("10.23");
+    expect(updated?.time).toBe("2026-05-02T17:07:58.352Z");
+    expect(updated?.type_direction).toBe("EXPENSES");
+    expect(updated?.accountId).toBe(account.id);
+    expect(updated?.comment).toBe("test");
+    expect(updated?.categoryId).toBeNull();
+  });
+
+  it("should delete a transaction", async () => {
+    const user = await prisma.user.create({
+      data: { email: "test@test.com", name: "Test User", password: "123" },
+    });
+
+    const account = await prisma.account.create({
+      data: { type: "SAVINGS", userId: user.id, balance: 123.23 },
+    });
+
+    const transaction = JSON.parse(
+      JSON.stringify(
+        await prismaRepository.createTransaction({
+          id: 123,
+          number: "GET-1",
+          amount: 10.23,
+          time: new Date("2026-05-02T17:07:58.352Z"),
+          type_direction: "EXPENSES",
+          accountId: account.id,
+          comment: "test",
+          categoryId: null,
+        }),
+      ),
+    );
+
+    const deleted = JSON.parse(
+      JSON.stringify(
+        await prismaRepository.deleteTransaction(transaction?.id as number),
+      ),
+    );
+    expect(deleted?.id).toBe(transaction?.id);
+    expect(deleted?.number).toBe(transaction?.number);
+    expect(deleted?.amount).toBe(transaction?.amount);
+    expect(deleted?.time).toBe(transaction?.time);
+    expect(deleted?.type_direction).toBe(transaction?.type_direction);
+    expect(deleted?.accountId).toBe(transaction?.accountId);
+    expect(deleted?.comment).toBe(transaction?.comment);
+    expect(deleted?.categoryId).toBe(transaction?.categoryId);
   });
 });
 
@@ -128,7 +220,7 @@ describe("Transaction API Endpoints", () => {
     });
 
     const req = new NextRequest(
-      "http://localhost:3000/api/transaction?id=" + transaction.id,
+      "http://localhost:3000/api/transactions?id=" + transaction.id,
       {
         method: "GET",
       },
@@ -150,7 +242,7 @@ describe("Transaction API Endpoints", () => {
 
   it("GET /api/transactions?id=invalid - should return 400", async () => {
     const req = new NextRequest(
-      "http://localhost:3000/api/transaction?id=invalid",
+      "http://localhost:3000/api/transactions?id=invalid",
       {
         method: "GET",
       },
@@ -162,7 +254,7 @@ describe("Transaction API Endpoints", () => {
 
   it("GET /api/transactions?id=99999 - should return 404", async () => {
     const req = new NextRequest(
-      "http://localhost:3000/api/transaction?id=99999",
+      "http://localhost:3000/api/transactions?id=99999",
       {
         method: "GET",
       },
@@ -170,5 +262,91 @@ describe("Transaction API Endpoints", () => {
 
     const response = await GET(req);
     expect(response.status).toBe(StatusCodes.NOT_FOUND);
+  });
+
+  it("PUT /api/transactions?id=123 - should update a transaction", async () => {
+    await prismaRepository.createTransaction({
+      id: 123,
+      number: "GET-1",
+      amount: 10.23,
+      time: new Date("2026-05-02T17:07:58.352Z"),
+      type_direction: "EXPENSES",
+      accountId: testAccount.id,
+      comment: "test",
+      categoryId: null,
+    });
+
+    const payload = {
+      id: 123,
+      number: "PUT-1",
+      amount: 10.23,
+      comment: "test",
+      time: new Date("2026-05-02T17:07:58.352Z"),
+      type_direction: "EXPENSES",
+      accountId: testAccount.id,
+      categoryId: null,
+    };
+
+    const req = new NextRequest(
+      "http://localhost:3000/api/transactions?id=123",
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+
+    const response = await PUT(req);
+    const data = await response?.json();
+
+    expect(response?.status).toBe(StatusCodes.OK);
+    expect(data).toHaveProperty("id");
+    expect(data.number).toBe("PUT-1");
+    expect(data.amount).toBe(10.23);
+    expect(data.time).toBe("2026-05-02T17:07:58.352Z");
+    expect(data.type_direction).toBe("EXPENSES");
+    expect(data.accountId).toBe(testAccount.id);
+    expect(data.comment).toBe("test");
+    expect(data.categoryId).toBeNull();
+  });
+
+  it("PUT /api/transactions - should return 404 when body has no transaction id", async () => {
+    const payload = {
+      number: "PUT-1",
+      amount: 10.23,
+      time: new Date("2026-05-02T17:07:58.352Z"),
+      type_direction: "EXPENSES",
+      accountId: testAccount.id,
+    };
+    const req = new NextRequest("http://localhost:3000/api/transactions", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const response = await PUT(req);
+    expect(response?.status).toBe(StatusCodes.NOT_FOUND);
+    expect(await response?.text()).toBe("No any transaction");
+  });
+
+  it("DELETE /api/transactions?id=123 - should delete a transaction", async () => {
+    await prismaRepository.createTransaction({
+      id: 123,
+      number: "DELETE-1",
+      amount: 10.23,
+      comment: "test",
+      categoryId: null,
+      time: new Date("2026-05-02T17:07:58.352Z"),
+      type_direction: "EXPENSES",
+      accountId: testAccount.id,
+    });
+    const req = new NextRequest(
+      "http://localhost:3000/api/transactions?id=123",
+      {
+        method: "DELETE",
+      },
+    );
+    const response = await DELETE(req);
+    expect(response?.status).toBe(StatusCodes.OK);
+    expect(await response?.text()).toBe("Transaction is deleted successfully");
   });
 });
