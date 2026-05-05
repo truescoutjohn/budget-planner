@@ -44,9 +44,10 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const search = searchParams.get("search");
 
   try {
-    if (!id) {
+    if (!id && !search) {
       //TODO make pagination
       const transactions = await prismaRepository.findTransactionAll();
 
@@ -56,6 +57,12 @@ export async function GET(request: NextRequest) {
       }));
 
       return NextResponse.json(mappedTransactions);
+    }
+
+    if (search) {
+      const transactions =
+        await prismaRepository.findTransactionBySearch(search);
+      return NextResponse.json(transactions);
     }
 
     const transactionId = Number(id);

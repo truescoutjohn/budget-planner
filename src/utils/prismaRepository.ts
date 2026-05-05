@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { IUser } from "@/types/user";
-import { ITransaction } from "@/types/transaction";
+import { ITransaction, ITransactionResponse } from "@/types/transaction";
 
 const prismaRepository = {
   createUser: async (user: IUser): Promise<IUser | null> => {
@@ -19,26 +19,52 @@ const prismaRepository = {
 
   createTransaction: async (
     transaction: ITransaction,
-  ): Promise<ITransaction> => {
+  ): Promise<ITransactionResponse> => {
     return await prisma.transaction.create({ data: transaction });
   },
 
   findTransactionById: async (
     transactionId: number,
-  ): Promise<ITransaction | null> => {
+  ): Promise<ITransactionResponse | null> => {
     return await prisma.transaction.findUnique({
       where: { id: transactionId },
+      include: {
+        account: true,
+        category: true,
+      },
     });
   },
 
-  findTransactionAll: async (): Promise<ITransaction[]> => {
-    return await prisma.transaction.findMany();
+  findTransactionBySearch: async (
+    search: string,
+  ): Promise<ITransactionResponse[]> => {
+    const cleanSearch = search.trim();
+
+    if (!cleanSearch) return [];
+    return await prisma.transaction.findMany({
+      where: {
+        OR: [
+          { number: { contains: cleanSearch, mode: "insensitive" } },
+          { comment: { contains: cleanSearch, mode: "insensitive" } },
+        ],
+      },
+      include: {
+        account: true,
+        category: true,
+      },
+    });
+  },
+
+  findTransactionAll: async (): Promise<ITransactionResponse[]> => {
+    return await prisma.transaction.findMany({
+      include: { account: true, category: true },
+    });
   },
 
   updateTransaction: async (
     transactionId: number,
     transaction: ITransaction,
-  ): Promise<ITransaction | null> => {
+  ): Promise<ITransactionResponse | null> => {
     try {
       return await prisma.transaction.update({
         where: { id: transactionId },
@@ -51,7 +77,7 @@ const prismaRepository = {
 
   deleteTransaction: async (
     transactionId: number,
-  ): Promise<ITransaction | null> => {
+  ): Promise<ITransactionResponse | null> => {
     try {
       const transaction = await prisma.transaction.delete({
         where: { id: transactionId },
