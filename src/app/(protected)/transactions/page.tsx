@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-} from "@/components/ui/table";
+import TableRootComponent from "@/components/ui/table";
 import { ITransactionResponse } from "@/types/transaction";
 import { useEffect, useState, useRef } from "react";
 import { formatTransactionTime } from "@/utils/time";
@@ -50,30 +43,44 @@ const TransactionsPage = () => {
   return (
     <>
       <Search search={search} setSearch={setSearch} />
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Number</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Time</TableHead>
-            <TableHead>Comment</TableHead>
-            <TableHead>Account</TableHead>
-            <TableHead>Category</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+      <TableRootComponent.Table>
+        <TableRootComponent.TableHeader>
+          <TableRootComponent.TableRow>
+            <TableRootComponent.TableHead>Number</TableRootComponent.TableHead>
+            <TableRootComponent.TableHead>Amount</TableRootComponent.TableHead>
+            <TableRootComponent.TableHead>Time</TableRootComponent.TableHead>
+            <TableRootComponent.TableHead>Comment</TableRootComponent.TableHead>
+            <TableRootComponent.TableHead>Account</TableRootComponent.TableHead>
+            <TableRootComponent.TableHead>
+              Category
+            </TableRootComponent.TableHead>
+          </TableRootComponent.TableRow>
+        </TableRootComponent.TableHeader>
+        <TableRootComponent.TableBody>
           {transactions?.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell>{transaction.number}</TableCell>
-              <TableCell>{transaction.amount}</TableCell>
-              <TableCell>{formatTransactionTime(transaction.time)}</TableCell>
-              <TableCell>{transaction.comment}</TableCell>
-              <TableCell>{transaction.account?.type}</TableCell>
-              <TableCell>{transaction.category?.name ?? "-"}</TableCell>
-            </TableRow>
+            <TableRootComponent.TableRow key={transaction.id}>
+              <TableRootComponent.TableCell>
+                {transaction.number}
+              </TableRootComponent.TableCell>
+              <TableRootComponent.TableCell>
+                {transaction.amount}
+              </TableRootComponent.TableCell>
+              <TableRootComponent.TableCell>
+                {formatTransactionTime(transaction.time)}
+              </TableRootComponent.TableCell>
+              <TableRootComponent.TableCell>
+                {transaction.comment}
+              </TableRootComponent.TableCell>
+              <TableRootComponent.TableCell>
+                {transaction.account?.type}
+              </TableRootComponent.TableCell>
+              <TableRootComponent.TableCell>
+                {transaction.category?.name ?? "-"}
+              </TableRootComponent.TableCell>
+            </TableRootComponent.TableRow>
           ))}
-        </TableBody>
-      </Table>
+        </TableRootComponent.TableBody>
+      </TableRootComponent.Table>
     </>
   );
 };

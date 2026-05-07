@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import bcrypt from "bcrypt";
 
 export default async function main() {
   console.log("Starting database cleanup...");
@@ -16,7 +17,7 @@ export default async function main() {
     data: {
       email: "dev.ivanov@gmail.com",
       name: "Ivan Ivanov",
-      password: "hashed_password_123", // TODO: use bcrypt
+      passwordHash: bcrypt.hashSync("123456789", 10),
       locale: "EN",
     },
   });
@@ -85,6 +86,29 @@ export default async function main() {
         comment: "First salary in the new company",
         accountId: mainAccount.id,
         categoryId: salaryCategory.id,
+      },
+    });
+
+    await prisma.transaction.create({
+      data: {
+        type_storage: "CARD",
+        type_direction: "EXPENSES",
+        number: "TXN-1002",
+        amount: 1000.0,
+        time: new Date(),
+        accountId: mainAccount.id,
+        categoryId: foodCategory.id,
+      },
+    });
+    await prisma.transaction.create({
+      data: {
+        type_storage: "CARD",
+        type_direction: "EXPENSES",
+        number: "TXN-1003",
+        amount: 1000.0,
+        time: new Date(),
+        accountId: mainAccount.id,
+        categoryId: foodCategory.id,
       },
     });
   }

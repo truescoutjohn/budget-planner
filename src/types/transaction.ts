@@ -3,22 +3,22 @@ import { ICategory } from "./category";
 
 export interface ITransaction {
   id?: number;
-  number: String;
+  number: string;
   amount: number;
   time: Date;
-  comment: String;
-  type_direction: String;
+  comment: string;
+  type_direction: string;
   accountId: number;
   categoryId: number | null;
 }
 
 export interface ITransactionResponse {
   id: number;
-  number: String;
+  number: string;
   amount: number;
   time: Date;
-  comment: String;
-  type_direction: String;
+  comment: string;
+  type_direction: string;
   account: IAccount;
   category: ICategory | null;
 }
