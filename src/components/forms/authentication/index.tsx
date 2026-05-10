@@ -97,7 +97,7 @@ const AuthForm = () => {
                         <Form.Item>
                           <Form.Label>Email</Form.Label>
                           <Form.Control>
-                            <Input.Root
+                            <Input
                               placeholder="example@mail.com"
                               {...field}
                               value={field.value || ""}
@@ -114,7 +114,7 @@ const AuthForm = () => {
                         <Form.Item>
                           <Form.Label>Password</Form.Label>
                           <Form.Control>
-                            <Input.Root
+                            <Input
                               type="password"
                               placeholder="••••••••"
                               {...field}
@@ -161,7 +161,7 @@ const AuthForm = () => {
                         <Form.Item>
                           <Form.Label>Email</Form.Label>
                           <Form.Control>
-                            <Input.Root
+                            <Input
                               placeholder="example@mail.com"
                               {...field}
                               value={field.value || ""}
@@ -178,7 +178,7 @@ const AuthForm = () => {
                         <Form.Item>
                           <Form.Label>Password</Form.Label>
                           <Form.Control>
-                            <Input.Root
+                            <Input
                               type="password"
                               placeholder="••••••••"
                               {...field}
@@ -196,7 +196,7 @@ const AuthForm = () => {
                         <Form.Item>
                           <Form.Label>Confirm Password</Form.Label>
                           <Form.Control>
-                            <Input.Root
+                            <Input
                               type="password"
                               placeholder="••••••••"
                               {...field}
