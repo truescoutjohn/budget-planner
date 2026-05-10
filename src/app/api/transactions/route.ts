@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prismaRepository from "@/utils/prismaRepository";
+import transactionsRepository from "@/utils/repository/transactions";
 import { ITransaction } from "@/types/transaction";
 import { StatusCodes } from "http-status-codes";
-import { trace } from "console";
 
 export async function POST(request: NextRequest) {
   const {
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest) {
     categoryId,
   }: ITransaction = await request.json();
   try {
-    const transaction = await prismaRepository.createTransaction({
+    const transaction = await transactionsRepository.createTransaction({
       number,
       amount,
       time,
@@ -49,7 +48,7 @@ export async function GET(request: NextRequest) {
   try {
     if (!id && !search) {
       //TODO make pagination
-      const transactions = await prismaRepository.findTransactionAll();
+      const transactions = await transactionsRepository.findTransactionAll();
 
       const mappedTransactions = transactions.map((transaction) => ({
         ...transaction,
@@ -61,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       const transactions =
-        await prismaRepository.findTransactionBySearch(search);
+        await transactionsRepository.findTransactionBySearch(search);
       return NextResponse.json(transactions);
     }
 
@@ -73,7 +72,7 @@ export async function GET(request: NextRequest) {
     }
 
     const transaction =
-      await prismaRepository.findTransactionById(transactionId);
+      await transactionsRepository.findTransactionById(transactionId);
     if (!transaction) {
       return new NextResponse("Transaction not found", {
         status: StatusCodes.NOT_FOUND,
@@ -107,7 +106,7 @@ export async function PUT(request: NextRequest) {
         status: StatusCodes.NOT_FOUND,
       });
     }
-    const transaction = await prismaRepository.updateTransaction(id, {
+    const transaction = await transactionsRepository.updateTransaction(id, {
       number,
       amount,
       time,
@@ -148,7 +147,7 @@ export async function DELETE(request: NextRequest) {
       });
     }
 
-    const transaction = await prismaRepository.deleteTransaction(id);
+    const transaction = await transactionsRepository.deleteTransaction(id);
 
     if (transaction?.id !== Number(id)) {
       return new NextResponse("Transaction isn't deleted", {

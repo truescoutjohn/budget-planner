@@ -54,7 +54,7 @@ export const transactionSchema = z.object({
   number: z.number("Incorrect format for number"),
   amount: z.number("Incorrect format for amount"),
   time: z.date("Incorrect format for date"),
-  comment: z.string().min(120, "Too small comment"),
+  comment: z.string().min(120, "Too small comment").optional().nullable(),
 });
 
 export const userSchema = z.object({

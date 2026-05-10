@@ -63,7 +63,7 @@ model Transaction {
   number String
   amount Decimal
   time DateTime
-  comment String
+  comment String?
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
   category  Category? @relation(fields: [categoryId], references: [id])

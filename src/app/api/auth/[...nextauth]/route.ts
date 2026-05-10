@@ -3,7 +3,7 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import prismaRepository from "@/utils/prismaRepository";
+import userRepository from "@/utils/repository/users";
 
 const providers = [];
 
@@ -17,13 +17,13 @@ providers.push(
     async authorize(credentials) {
       if (!credentials?.email || !credentials?.password) return null;
 
-      const user = await prismaRepository.findUser(credentials.email);
+      const user = await userRepository.findUser(credentials.email);
 
       if (!user) return null;
 
       const passwordsMatch = await bcrypt.compare(
         credentials.password,
-        user.password,
+        user.passwordHash,
       );
 
       if (!passwordsMatch) return null;

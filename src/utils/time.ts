@@ -1,9 +1,8 @@
-import type { ITransaction } from "@/types/transaction";
-
-export function formatTransactionTime(value: ITransaction["time"]): string {
-  const d = new Date(value as unknown as string);
+/** API/JSON часто даёт строку ISO, Prisma-подобный тип — `Date`. */
+export function formatTransactionTime(value: Date | string | number): string {
+  const d = new Date(value);
   if (Number.isNaN(d.getTime())) return String(value);
-  return new Intl.DateTimeFormat("ru-RU", {
+  return new Intl.DateTimeFormat([], {
     dateStyle: "short",
     timeStyle: "medium",
   }).format(d);

@@ -16,6 +16,11 @@ const registration = async (
     }),
   });
 
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error);
+  }
+
   return response.json();
 };
 
