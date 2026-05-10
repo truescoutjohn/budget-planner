@@ -28,6 +28,7 @@ import { ListFilterIcon, FunnelXIcon } from "lucide-react";
 import { ITransactionResponse } from "@/types/transaction";
 import { applyFiltersToTransactions } from "@/utils/filters";
 import { getActiveFilters } from "@/utils/filters";
+import { formatTransactionTime } from "@/utils/time";
 
 // Helper to check if a filter has meaningful values
 export function Transactions() {
@@ -127,7 +128,9 @@ export function Transactions() {
         header: ({ column }) => (
           <DataGridColumnHeader title="Time" column={column} />
         ),
-        cell: (info) => <span>{info.getValue() as string}</span>,
+        cell: ({ row }) => (
+          <span>{formatTransactionTime(row.original.time)}</span>
+        ),
         size: 120,
         enableSorting: true,
         meta: {
