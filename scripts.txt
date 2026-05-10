@@ -4,6 +4,7 @@ npx prisma db seed
 
 
 //Start tests
-docker compose -f docker-compose.test.yml up -d \
-&& npx dotenv-cli -e .env.test -- npx prisma migrate deploy \
-&& npx vitest --run --fileParallelism=false
+docker compose -f docker-compose.test.yml down -v
+docker compose -f docker-compose.test.yml up -d
+npx dotenv-cli -e .env.test -- npx prisma migrate deploy
+npx vitest --run --fileParallelism=false

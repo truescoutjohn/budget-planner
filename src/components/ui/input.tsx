@@ -1,10 +1,8 @@
-import React from "react";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-type Props = React.ComponentProps<"input">;
-
-function InputRoot({ className, type, ...props }: Props) {
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input
       type={type}
@@ -17,13 +15,5 @@ function InputRoot({ className, type, ...props }: Props) {
     />
   );
 }
-
-type InputCompoundComponent = typeof InputRoot & {
-  Root: typeof InputRoot;
-};
-
-const Input = Object.assign(InputRoot, {
-  Root: InputRoot,
-}) as InputCompoundComponent;
 
 export { Input };

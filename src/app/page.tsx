@@ -1,5 +1,11 @@
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 import Home from "@/app/(protected)/home/page";
 
 export default function App() {
-  return <Home />;
+  return (
+    <TooltipProvider>
+      <Home />
+    </TooltipProvider>
+  );
 }

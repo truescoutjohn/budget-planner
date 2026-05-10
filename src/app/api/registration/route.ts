@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import bcrypt from "bcrypt";
 import { registrationSchema } from "@/schema/zod";
-import prismaRepository from "@/utils/prismaRepository";
+import userRepository from "@/utils/repository/users";
 import { SALT_ROUNDS } from "@/constants/constants";
 import { StatusCodes } from "http-status-codes";
 
@@ -40,7 +40,7 @@ async function POST(req: NextRequest) {
 
   const { email, password } = response;
 
-  const userExists = await prismaRepository.findUser(email);
+  const userExists = await userRepository.findUser(email);
 
   if (userExists) {
     return NextResponse.json(
@@ -49,13 +49,19 @@ async function POST(req: NextRequest) {
     );
   }
 
-  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
-  const user = await prismaRepository.createUser({
+  const user = await userRepository.createUser({
     email,
-    password: hashedPassword,
+    passwordHash,
   });
 
+  if (!user) {
+    return NextResponse.json(
+      { error: "Failed to create user" },
+      { status: StatusCodes.INTERNAL_SERVER_ERROR },
+    );
+  }
   return NextResponse.json(user, { status: StatusCodes.CREATED });
 }
 
